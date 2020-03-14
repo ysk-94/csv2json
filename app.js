@@ -2,18 +2,22 @@ const fs = require('fs');
 const stateData = require('./state.json');
 
 const result = [];
-fs.readFile('cds.csv', (err, data) => {
+const filename = 'input.csv';
+const lf = '\n';
+fs.readFile(filename, (err, data) => {
 	if (err) throw err;
 
-	const lines = data.toString().split('\r\n');
+	let headers;
+	const lines = data.toString().split(lf);
 	lines.forEach((line, rowCount) => {
-		if (rowCount > 0) {
+		if (rowCount === 0) {
+			headers = line.split(',');
+		} else if (rowCount > 0) {
+			const data = {};
 			const columns = line.split(',');
-			const data = {
-				clientcd: columns[0],
-				state: stateData[columns[1]],
-				planCd: columns[2],
-			};
+			columns.forEach((col, index) => {
+				data[headers[index]] = col;
+			});
 			result.push(data);
 
 			if (rowCount+1 === lines.length) {
